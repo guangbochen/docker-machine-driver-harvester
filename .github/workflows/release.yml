@@ -19,6 +19,7 @@ jobs:
       run: |
         source scripts/version
         echo "::set-output name=artifacts_dir::${PWD}/dist/artifacts"
+        echo "::set-output name=version::$(echo $GITHUB_REF | cut -d / -f 3)"
         echo "::set-output name=base_version::${VERSION}"
 
     - name: Generate release info
@@ -26,7 +27,6 @@ jobs:
       env:
         BASE_VERSION: ${{ steps.info.outputs.base_version }}
       run: |
-        echo "::set-output name=version::$(echo $GITHUB_REF | cut -d / -f 3)"
         echo "🍻" > release.txt
 
     - name: Upload to s3
@@ -37,7 +37,7 @@ jobs:
         aws_secret_access_key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws_bucket: ${{ secrets.AWS_BUCKET }}
         source_dir: 'dist/artifacts'
-        destination_dir: 'driver/${{ steps.info.outputs.version }}'
+        destination_dir: driver/${{ steps.info.outputs.version }}
 
     - name: Release
       uses: softprops/action-gh-release@v1
